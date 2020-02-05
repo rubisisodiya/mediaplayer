@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html>
+    <head>
+            <meta charset="UTF-8">
+        <title>
+            EDYODA
+        </title>
+    
+    <style>
+        *{box-sizing: border-box;;}
+        body{
+            margin:0;
+            padding:0;
+            color:antiquewhite
+            background-color black;
+            font:14px;
+            font-family: 'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
+            }
+            
+
+            .result{
+                width: 150px;
+                height: 125px;
+                background-repeat: no-repeat;
+                background-size: cover;
+                background-position: center;
+            }
+            .result:hover{
+                transform: scale(1.1);
+            }
+            .result.blur{
+
+                filter:blur(8px);
+            }
+            .media{
+                position: absolute;
+                top:150px;
+                right: 200px;
+                width: 450px;
+                z-index: 10;
+                box-shadow: 0px,0px,80px,8px rgba(255,255,255,.1);
+                transform: all 2s ease;
+                background-color: rgba(0,0,0,8);
+            }
+            .media.hidden{
+                opacity: 0;
+            }
+            .media video{
+                width: 100%;
+            }
+
+            @media screen and(max-width:580px){
+                .artist{
+                    position: absolute;
+                    bottom: 50px;
+                    right:100px;
+                    height: 150px;
+                    border-radius: 50px;
+                    background-repeat: no-repeat;
+                    background-size: cover;
+                }
+            }
+            
+            .container{
+                margin: 100px auto 0;
+                width: 75%;
+                display: flex;
+                flex-wrap: wrap;
+                transform: perspective(3500px) rotate 3d(0,1,0,50deg);
+            }
+            #search{
+                display: block;
+                text-align: center;
+                padding: 10px;
+                font-size: 1 rem;
+                color:#fff;
+                background-color: #000;
+                border: 1px solid #fff;
+                transform: all 1s ease;
+                position:absolute;
+                bottom: 225px;
+                right:75px;
+            }
+            #search:focus{
+                bottom: 50%;
+                right:50%;
+                transform:scale(2)translate(-50%,-50%);
+            }
+
+    </style>
+    </head>
+    <body>
+        <header></header>
+        <h2>EDYODA</h2>
+        <b><h2>InstaMusic-Music player with a clean and
+            minimalistic design.</h2></b>
+            <div class="container"></div>
+            <div class="artist"></div>
+            <div class="overlay"></div>
+            <div class="media hidden"></div>
+        <script>
+           const container =document.querySelector('.container');
+           const artistImage = document.querySelector('.artist')
+           const media = document.querySelector('.medio')
+           const overlay = document.querySelector('.overlay')
+           const searchElem= document.querySelector('#search')
+           
+           const getContent = (search) =>{
+               const url = new URL('https://reactmusicplayer-ab9e4.firebaseapp.com');
+               const params = {term:search,media:'musicVideo'};
+               url.search = new URLSearchParams(params)
+               fetch(url,{method:'POST'})
+               .then(results => results.json())
+               .then(data => {
+                   const resultsHTML = data.results.map(results =>`
+                   <div style ="background-image:url(${results.artWorkUrl100});"
+                   onclick="openMedia('${results.previewUrl}','${results.trackCensoredNane}')" class="result"></div>`
+                   ).join('')
+                   container.innerHTML=resultsHTML;
+                   return fetch(data.result[0].artistViewUrl);
+                   })
+                   .then(data => data.text())
+                   .then(data =>{
+                       const artistImage = data.match(/https?:\/\/[a-zA-Z0-9:\/\.\-]+.jpg/)[0];
+                       artistImage.style['background-image']=`url(${artistImage})`;
+                   })
+           };
+           const openMedia =(url,title)=>{
+               media.innerHTML=`<video controls autoplay src="${url}"></vedio><p>${title}</p>`
+               media.classList.remove('hidden');
+               toggleOverlay();
+
+           }
+           const closeMedia =() =>{
+               media.innerHTML = '';
+               toggleOverlay();
+           }
+           const toggleOverlay =()=>{
+               overlay.classList.toggle('blur');
+               document.querySelectorAll('.result').forEach(result => result.classList.toggle('blur'));
+           }
+           overlay.addEventListener('click',closeMedia);
+           
+           searchElem.addEventListener('keydown',(event)=>{
+               if(event.key === 'Enter'){
+                   getContent(searchElem.value);
+                   searchElem.blue();
+                   toggleOverlay();
+               }
+           })
+           
+
+        </script>
+    </body>
+</html>

@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Determine Gender</title>
+
+    </head>
+    <body>
+        <h2>let us a name we'll determine the gender</h2>
+        <form id ="gender">
+            <label>
+                Name
+                <input type="text"/>
+
+            </label>
+            <input type="submit" value="submit"/>
+        </form>
+        <br/>
+        <div id="result"></div>
+        <script>
+            const genderHandle = document.getElementById('gender')
+            const resultHandle = document.getElementById('result')
+
+            genderHandle.addEventListener('submit',function(e){
+                e.preventDefault()
+                const name = e.target[0].value
+                const xhr = new XMLHttpRequest()
+                xhr.open('GET',`https://gender-api.com/get?name=${name}&key=pRPLCejozFbVCR`)
+                 xhr.send()
+                 xhr.onload = function(){
+                     const responseDate = JSON.parse(xhr.responseText)
+                     resultHandle.innerHTML =`The gender of ${name} is${responseDate.gender}`
+                 }
+            })
+        </script>
+
+    </body>
+</html>
